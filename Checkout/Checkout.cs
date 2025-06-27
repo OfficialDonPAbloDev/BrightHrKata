@@ -31,7 +31,8 @@ namespace Checkout
     {
         public StockCatalogue()
         {
-            Items = [new CatalogueItem('A', "A great thing", 50.0M)];
+            Items = [new CatalogueItem('A', "A great thing", 50.0M),
+                new CatalogueItem('B', "A good useful thing", 30.0M)];
         }
         public List<CatalogueItem> Items { get; set; }
     }

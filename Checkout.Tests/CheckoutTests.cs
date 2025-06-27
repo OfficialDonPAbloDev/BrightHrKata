@@ -25,5 +25,14 @@ namespace Checkout.Tests
             var result = _cut?.GetTotalCost();
             Assert.AreEqual(50, result);
         }
+
+        [TestMethod]
+        public void GetTotalCost_returns_sum_prices_for_single_A_product_and_single_B_product_when_one_of_each_scanned()
+        {
+            _cut?.Scan('A');
+            _cut?.Scan('B');
+            var result = _cut?.GetTotalCost();
+            Assert.AreEqual(80, result);
+        }
     }
 }
