@@ -10,7 +10,7 @@ namespace Checkout
 
         public decimal GetTotalCost()
         {
-            return _pricingEngine.GetSumOfAllNormalItemsPrices(_basket) + _pricingEngine.GetSumOfAllSpecialPriceItemsPrices(_basket);
+            return _pricingEngine.GetSumOfAllNormalItemsPrices(_basket) + _pricingEngine.GetSumOfAllSpecialPriceItems(_basket);
         }
 
         public void Scan(char sku)

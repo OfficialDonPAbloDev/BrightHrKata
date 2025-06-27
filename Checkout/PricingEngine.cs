@@ -7,7 +7,7 @@ namespace Checkout
         private readonly ISpecialPrices _specialPrices = specialPrices;
         private decimal _runningTotal = 0M;
 
-        public decimal GetSumOfAllSpecialPriceItemsPrices(IBasket basket)
+        public decimal GetSumOfAllSpecialPriceItems(IBasket basket)
         {
             var localSum = 0M;
             var specialPrices = GetCurrentSpecialPrices()
@@ -39,10 +39,10 @@ namespace Checkout
             {
                 if (item.BasketAmount >= item.NumberToQualifyForPricing)
                 {
-                    localSum += item.NumberToQualifyForPricing / item.BasketAmount * item.SpecialPrice;
+                    localSum += item.BasketAmount / item.NumberToQualifyForPricing * item.SpecialPrice;
                     if (item.NumberToQualifyForPricing % item.BasketAmount > 0)
                     {
-                        localSum += item.NumberToQualifyForPricing % item.BasketAmount * item.individualPrice;
+                        localSum += item.BasketAmount % item.NumberToQualifyForPricing * item.individualPrice;
                     }
                 }
                 else
@@ -52,14 +52,6 @@ namespace Checkout
             }
 
             return localSum;
-        }
-
-        private List<SpecialPrice> GetCurrentSpecialPrices()
-        {
-            return _specialPrices
-                .Prices
-                .Where(x => x.ValidDateRangeFrom < DateTime.Now && x.ValidDateRangeTo > DateTime.Now)
-                .ToList();
         }
 
         public decimal GetSumOfAllNormalItemsPrices(IBasket basket)
@@ -77,6 +69,14 @@ namespace Checkout
             }
 
             return localSum;
+        }
+
+        private List<SpecialPrice> GetCurrentSpecialPrices()
+        {
+            return _specialPrices
+                .Prices
+                .Where(x => x.ValidDateRangeFrom < DateTime.Now && x.ValidDateRangeTo > DateTime.Now)
+                .ToList();
         }
     }
 }

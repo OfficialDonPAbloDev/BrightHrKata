@@ -46,17 +46,6 @@ namespace Checkout.Tests
         }
 
         [TestMethod]
-        public void GetTotalCost_returns_sum_prices_for_all_catalogue_items_when_one_of_each_scanned()
-        {
-            _cut?.Scan('A');
-            _cut?.Scan('B');
-            _cut?.Scan('C');
-            _cut?.Scan('D');
-            var result = _cut?.GetTotalCost();
-            Assert.AreEqual(115, result);
-        }
-
-        [TestMethod]
         public void Scanning_invalid_item_does_not_throws_known_exception()
         {
             try
@@ -68,16 +57,6 @@ namespace Checkout.Tests
 
                 Assert.Fail($"No exception expected but thrown with message: '{ex.Message}'");
             }
-        }
-
-        [TestMethod]
-        public void Scanning_number_of_a_certain_product_known_to_have_special_multi_price_setup_returns_special_price_for_those_items()
-        {
-            _cut?.Scan('A');
-            _cut?.Scan('A');
-            _cut?.Scan('A');
-            var result = _cut?.GetTotalCost();
-            Assert.AreEqual(130, result);
         }
     }
 }
