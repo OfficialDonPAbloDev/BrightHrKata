@@ -55,5 +55,20 @@ namespace Checkout.Tests
             var result = _cut?.GetTotalCost();
             Assert.AreEqual(115, result);
         }
+
+        [TestMethod]
+        public void Scanning_invalid_item_does_not_throws_known_exception()
+        {
+            try
+            {
+                _cut?.Scan('E');
+            }
+            catch (Exception ex)
+            {
+
+                Assert.Fail($"No exception expected but thrown with message: '{ex.Message}'");
+            }
+
+        }
     }
 }
