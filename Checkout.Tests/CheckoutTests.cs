@@ -8,7 +8,7 @@ namespace Checkout.Tests
         [TestInitialize]
         public void SetUp()
         {
-            _cut = new Checkout(new StockCatalogue());
+            _cut = new Checkout(new StockCatalogue(), new SpecialPrices());
         }
 
         [TestMethod]
@@ -68,7 +68,16 @@ namespace Checkout.Tests
 
                 Assert.Fail($"No exception expected but thrown with message: '{ex.Message}'");
             }
+        }
 
+        [TestMethod]
+        public void Scanning_number_of_a_certain_product_known_to_have_special_multi_price_setup_returns_special_price_for_those_items()
+        {
+            _cut?.Scan('A');
+            _cut?.Scan('A');
+            _cut?.Scan('A');
+            var result = _cut?.GetTotalCost();
+            Assert.AreEqual(130, result);
         }
     }
 }

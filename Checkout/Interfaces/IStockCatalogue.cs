@@ -1,5 +1,4 @@
-﻿
-namespace Checkout
+﻿namespace Checkout.Interfaces
 {
     public interface IStockCatalogue
     {

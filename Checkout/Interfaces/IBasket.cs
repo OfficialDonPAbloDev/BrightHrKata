@@ -1,9 +1,10 @@
-﻿namespace Checkout
+﻿namespace Checkout.Interfaces
 {
     public interface IBasket
     {
         void Add(ICatalogueItem item);
         void Remove(ICatalogueItem item);
-        decimal GetAllItemsPrice();
+
+        IList<ICatalogueItem> Items { get; }
     }
 }

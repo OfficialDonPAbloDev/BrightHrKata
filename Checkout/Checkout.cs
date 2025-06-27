@@ -1,20 +1,17 @@
 ﻿using Checkout.Interfaces;
-using System.Runtime.InteropServices;
 
 namespace Checkout
 {
-    public class Checkout : ICheckout
+    public class Checkout(IStockCatalogue stockCatalogue, ISpecialPrices specialPrices) : ICheckout
     {
-        private readonly IStockCatalogue _stockCatalogue;
-        private IBasket _basket;
-        public Checkout(IStockCatalogue stockCatalogue)
-        {
-            _stockCatalogue = stockCatalogue;
-            _basket = new Basket();
-        }
+        private readonly IStockCatalogue _stockCatalogue = stockCatalogue;
+        private readonly ISpecialPrices _specialPrices = specialPrices;
+        private IBasket _basket = new Basket();
+        private decimal _runningTotal = 0M;
+
         public decimal GetTotalCost()
         {
-            return _basket.GetAllItemsPrice();
+            return GetSumOfAllNormalItemsPrices() + GetSumOfAllSpecialPriceItemsPrices();
         }
 
         public void Scan(char sku)
@@ -25,17 +22,77 @@ namespace Checkout
                 _basket.Add(item);
             }
         }
-    }
 
-    public class StockCatalogue : IStockCatalogue
-    {
-        public StockCatalogue()
+        public decimal GetSumOfAllNormalItemsPrices()
         {
-            Items = [new CatalogueItem('A', "A great thing", 50.0M),
-                new CatalogueItem('B', "A good useful thing", 30.0M),
-                new CatalogueItem('C', "An Ok thing", 20.0M),
-                new CatalogueItem('D', "A cheapo thing", 15.0M)];
+            var localSum = 0M;
+            var specialPrices = GetCurrentSpecialPrices();
+
+            foreach (var item in _basket.Items
+                        .Where(x=> !specialPrices
+                                    .Select(y=> y.Sku)
+                                    .Distinct()
+                                    .Contains(x.Sku)))
+            {
+                localSum += item.SalesPrice;
+            }
+
+            return localSum;
         }
-        public List<CatalogueItem> Items { get; set; }
+
+        public decimal GetSumOfAllSpecialPriceItemsPrices()
+        {
+            var localSum = 0M;
+            var specialPrices = GetCurrentSpecialPrices()
+                .ToList();
+
+            var applicableBasketItems = _basket
+                .Items
+                .Where(x => specialPrices.Select(y=> y.Sku)
+                .Distinct()
+                .Contains(x.Sku))
+                .ToList();
+
+
+            var query = (from specialPrice in specialPrices
+                        join applicableItem in applicableBasketItems on specialPrice.Sku equals applicableItem.Sku
+                        select new QualifyingItemsSummary
+                        (
+                            applicableItem.Sku,
+                            applicableBasketItems.Count(x => x.Sku == applicableItem.Sku),
+                            specialPrice.NumberOfItemsToApply,
+                            specialPrice.PromotionPrice,
+                            applicableItem.SalesPrice
+
+                        ))
+                        .Distinct()
+                        .ToList();
+
+            foreach ( var item in query )
+            {
+                if(item.BasketAmount >= item.NumberToQualifyForPricing)
+                {
+                    localSum += item.NumberToQualifyForPricing / item.BasketAmount * item.SpecialPrice;
+                    if (item.NumberToQualifyForPricing % item.BasketAmount > 0)
+                    {
+                        localSum += item.NumberToQualifyForPricing % item.BasketAmount * item.individualPrice;
+                    }
+                }
+                else
+                {
+                    localSum += item.BasketAmount * item.individualPrice;
+                }
+            }
+
+            return localSum;
+        }
+
+        private List<SpecialPrice> GetCurrentSpecialPrices()
+        {
+            return _specialPrices
+                .Prices
+                .Where(x => x.ValidDateRangeFrom < DateTime.Now && x.ValidDateRangeTo > DateTime.Now)
+                .ToList();
+        }
     }
 }
