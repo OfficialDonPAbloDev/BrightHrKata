@@ -8,7 +8,7 @@ namespace Checkout.Tests
         [TestInitialize]
         public void SetUp()
         {
-            _cut = new Checkout();
+            _cut = new Checkout(new StockCatalogue());
         }
 
         [TestMethod]
@@ -16,6 +16,14 @@ namespace Checkout.Tests
         {
             var result = _cut?.GetTotalCost();
             Assert.AreEqual(0, result);
+        }
+
+        [TestMethod]
+        public void GetTotalCost_returns_price_for_single_A_product_when_one_scanned()
+        {
+            _cut?.Scan('A');
+            var result = _cut?.GetTotalCost();
+            Assert.AreEqual(50, result);
         }
     }
 }
