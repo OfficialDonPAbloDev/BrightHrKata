@@ -8,7 +8,7 @@ namespace Checkout.Tests
         [TestInitialize]
         public void SetUp()
         {
-            _cut = new Checkout(new StockCatalogue(), new SpecialPrices());
+            _cut = new Checkout(new StockCatalogue(), new PricingEngine(new SpecialPrices()));
         }
 
         [TestMethod]
